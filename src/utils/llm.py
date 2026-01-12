@@ -1,20 +1,20 @@
 import os
-from langchain_groq import ChatGroq
+from langchain_gigachat import GigaChat
 from dotenv import load_dotenv
 
 load_dotenv()
 
 def get_llm():
     """
-    Returns the configured ChatGroq instance using the Kimi model.
+    Returns the configured GigaChat instance.
     """
-    api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
-        print("Warning: GROQ_API_KEY not found in environment variables.")
+    credentials = os.getenv("GIGACHAT_CREDENTIALS")
+    if not credentials:
+        print("Warning: GIGACHAT_CREDENTIALS not found in environment variables.")
         # We allow it to fail later if the key is missing, or user can input it.
     
-    return ChatGroq(
-        model="openai/gpt-oss-120b",
-        temperature=0,
-        api_key=api_key
+    return GigaChat(
+        credentials=credentials,
+        verify_ssl_certs=False,
+        temperature=0
     )

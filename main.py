@@ -13,12 +13,12 @@ def main():
     load_dotenv()
     
     # Check for API Key
-    if not os.getenv("GROQ_API_KEY"):
-        console.print("[red]Error: GROQ_API_KEY not found in environment variables.[/red]")
-        console.print("Please create a .env file with your key or export it.")
+    if not os.getenv("GIGACHAT_CREDENTIALS"):
+        console.print("[red]Error: GIGACHAT_CREDENTIALS not found in environment variables.[/red]")
+        console.print("Please create a .env file with your credentials or export it.")
         key = input("Or enter it now: ").strip()
         if key:
-            os.environ["GROQ_API_KEY"] = key
+            os.environ["GIGACHAT_CREDENTIALS"] = key
         else:
             sys.exit(1)
 
