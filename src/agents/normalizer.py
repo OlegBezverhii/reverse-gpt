@@ -3,15 +3,10 @@ from src.state import ReverseEngineeringState
 from src.utils.llm import get_llm
 
 def normalize_code_node(state: ReverseEngineeringState) -> dict:
-    """
-    Node that normalizes the decompiled code to make it more readable.
-    It renames variables and adds comments.
-    """
     raw_code = state.get("decompiled_code")
     if not raw_code:
         return {"normalized_code": "No code available to normalize."}
     
-    # Check if the decompiled code is actually an error message
     error_indicators = [
         "No function found at",
         "Decompilation failed",
