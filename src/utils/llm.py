@@ -14,6 +14,7 @@ def get_llm():
         # We allow it to fail later if the key is missing, or user can input it.
     
     return GigaChat(
+        model='GigaChat-2-Max',
         credentials=credentials,
         verify_ssl_certs=False,
         temperature=0

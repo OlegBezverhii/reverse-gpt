@@ -24,13 +24,16 @@ def normalize_code_node(state: ReverseEngineeringState) -> dict:
 
     llm = get_llm()
     
-    prompt = """You are an expert reverse engineer. 
-    Your task is to take the following raw decompiled C code (likely from Ghidra) and 'normalize' it.
-    1. Rename generic variables (e.g., iVar1, uVar2) to meaningful names based on context if possible.
-    2. Add comments explaining the logic.
-    3. Do NOT change the logic.
+    prompt = """Ты — эксперт по реверс-инжинирингу.
+    Твоя задача — взять предоставленный сырой декомпилированный C-код (из Ghidra) и "нормализовать" его для удобства чтения.
     
-    Return ONLY the normalized code.
+    ИНСТРУКЦИИ:
+    1. Переименуй неинформативные переменные (типа iVar1, uVar2, param_1) в осмысленные имена на английском языке, основываясь на контексте их использования.
+    2. Добавь комментарии НА РУССКОМ ЯЗЫКЕ, объясняющие, что делает каждая ключевая строка или блок кода.
+    3. Сохрани оригинальную логику программы неизменной.
+    4. Если код содержит строки или вызовы API, используй их для понимания смысла переменных.
+    
+    Верни ТОЛЬКО нормализованный код (блок кода).
     """
     
     messages = [
