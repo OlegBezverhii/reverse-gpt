@@ -1,9 +1,11 @@
 from langchain_core.tools import tool
+from typing import Union
 from src.tools.ghidra import (
     get_decompiled_code_at_address as _get_decompiled_code,
     list_functions as _list_functions,
     analyze_binary_structure as _analyze_binary,
-    read_memory_bytes as _read_memory
+    read_memory_bytes as _read_memory,
+    get_callers as _get_callers
 )
 
 # Global variable to store current binary path
@@ -40,14 +42,25 @@ def analyze_binary_structure() -> str:
     return _analyze_binary.invoke({"file_path": _current_binary_path})
 
 @tool
-def read_memory_bytes(address: str, size: str = "0") -> str:
+def get_callers(address: str) -> str:
+    """
+    Finds all cross-references (callers) TO a function or address.
+    Use this to answer questions like "which function calls FUN_0041b3e0?".
+
+    Args:
+        address: The hex address of the function or code location (e.g., "0x0041b3e0").
+    """
+    return _get_callers.invoke({"address": address, "file_path": _current_binary_path})
+
+@tool
+def read_memory_bytes(address: str, size: Union[int, str] = "0") -> str:
     """
     Reads memory bytes from the binary at a specific address.
     Useful for inspecting DAT_ variables, strings, or arrays.
     
     Args:
         address: The hex address to read from (e.g., "0x00402000").
-        size: Number of bytes to read as a string. Can be decimal ("64") or hex ("0x40"). 
-              If "0", tries to detect size based on defined data.
+        size: Number of bytes to read as a decimal integer (e.g., 64, 256).
+              If 0, tries to detect size based on defined data.
     """
     return _read_memory.invoke({"address": address, "size": size, "file_path": _current_binary_path})

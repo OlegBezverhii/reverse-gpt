@@ -1,21 +1,20 @@
 import os
-from langchain_gigachat import GigaChat
+from langchain_deepseek import ChatDeepSeek
 from dotenv import load_dotenv
 
 load_dotenv()
 
 def get_llm():
     """
-    Returns the configured GigaChat instance.
+    Returns the configured DeepSeek instance.
     """
-    credentials = os.getenv("GIGACHAT_CREDENTIALS")
-    if not credentials:
-        print("Warning: GIGACHAT_CREDENTIALS not found in environment variables.")
+    api_key = os.getenv("DEEPSEEK_API_KEY")
+    if not api_key:
+        print("Warning: DEEPSEEK_API_KEY not found in environment variables.")
         # We allow it to fail later if the key is missing, or user can input it.
-    
-    return GigaChat(
-        model='GigaChat-2-Max',
-        credentials=credentials,
-        verify_ssl_certs=False,
+
+    return ChatDeepSeek(
+        model=os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
+        api_key=api_key,
         temperature=0
     )

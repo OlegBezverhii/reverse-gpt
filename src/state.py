@@ -1,9 +1,9 @@
 from typing import List, Optional, TypedDict, Annotated
 from langchain_core.messages import BaseMessage
-import operator
+from langgraph.graph.message import add_messages
 
 class ReverseEngineeringState(TypedDict):
-    messages: Annotated[List[BaseMessage], "История сообщений чата"]
+    messages: Annotated[List[BaseMessage], add_messages]
     binary_path: str
     is_report_generated: bool
     
@@ -13,3 +13,5 @@ class ReverseEngineeringState(TypedDict):
     normalized_code: Optional[str]
     
     tool_call_count: int
+    tool_history: Optional[dict]
+    stagnant_steps: int

@@ -3,6 +3,7 @@ import sys
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from src.agents.orchestrator import build_graph
+from src.tools.ghidra import project_exists, set_reanalyze
 from rich.console import Console
 from rich.markdown import Markdown
 
@@ -13,12 +14,12 @@ def main():
     load_dotenv()
     
     # Проверка наличия ключа API
-    if not os.getenv("GIGACHAT_CREDENTIALS"):
-        console.print("[red]Ошибка: GIGACHAT_CREDENTIALS не найден в переменных окружения.[/red]")
-        console.print("Пожалуйста, создайте файл .env с вашими учетными данными или экспортируйте их.")
-        key = input("Или введите их сейчас: ").strip()
+    if not os.getenv("DEEPSEEK_API_KEY"):
+        console.print("[red]Ошибка: DEEPSEEK_API_KEY не найден в переменных окружения.[/red]")
+        console.print("Пожалуйста, создайте файл .env с вашим API-ключом или экспортируйте его.")
+        key = input("Или введите ключ сейчас: ").strip()
         if key:
-            os.environ["GIGACHAT_CREDENTIALS"] = key
+            os.environ["DEEPSEEK_API_KEY"] = key
         else:
             sys.exit(1)
 
@@ -30,7 +31,17 @@ def main():
     if not binary_path:
         console.print("[red]Путь не указан. Выход.[/red]")
         sys.exit(1)
-    
+
+    # 2. Проверка сохранённого проекта Ghidra
+    if project_exists(binary_path):
+        answer = console.input(
+            "[yellow]Найден сохранённый проект Ghidra для этого файла. "
+            "Открыть без повторного анализа? [Y/n]: [/yellow]"
+        ).strip().lower()
+        set_reanalyze(answer in ("n", "no", "нет", "н"))
+    else:
+        set_reanalyze(False)
+
     # Инициализация графа
     app = build_graph()
     
@@ -43,7 +54,9 @@ def main():
         "current_function_address": None,
         "decompiled_code": None,
         "normalized_code": None,
-        "tool_call_count": 0
+        "tool_call_count": 0,
+        "tool_history": {},
+        "stagnant_steps": 0
     }
 
     console.print("\n[yellow]--- Запуск начального анализа ---[/yellow]")
@@ -69,8 +82,10 @@ def main():
             
             # Добавление сообщения пользователя в состояние
             state["messages"].append(HumanMessage(content=user_input))
-            # Сброс счетчика вызовов инструментов для нового вопроса
+            # Сброс счетчиков вызовов инструментов для нового вопроса
             state["tool_call_count"] = 0
+            state["tool_history"] = {}
+            state["stagnant_steps"] = 0
             
             # Запуск графа
             final_state = app.invoke(state, {"recursion_limit": 100})
